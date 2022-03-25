@@ -1,0 +1,30 @@
+{
+  "name": "chat-app",
+  "vendor": "tonypapelerias",
+  "version": "0.1.32",
+  "title": "tonypapelerias",
+  "description": "Custom app para implementar facturacion",
+  "builders": {
+    "react": "3.x",
+    "store": "0.x",
+    "pixel": "0.x",
+    "docs": "0.x"
+  },
+  "dependencies": {
+    "vtex.pixel-interfaces": "1.x",
+    "vtex.product-context": "0.x",
+    "vtex.styleguide": "9.x"
+  },
+  "settingsSchema": {
+    "title": "chat-app",
+    "type": "object",
+    "properties": {
+      "gtmId": {
+        "title": "SAMPLE FIELD",
+        "description": "Enter the ID (GTM-XXXX) from your Google Tag Manager",
+        "type": "string"
+      }
+    }
+  },
+  "$schema": "https://raw.githubusercontent.com/vtex/node-vtex-api/master/gen/manifest.schema"
+}

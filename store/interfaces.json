@@ -1,0 +1,35 @@
+{
+  "pixel.APPNAME": {
+    "component": "index"
+  },
+  "facturacion": {
+    "component": "Facturacion"
+  },
+  "ModalFranquicia": {
+    "component": "ModalFranquicia"
+  },
+  "ButtonFranquicia": {
+    "component": "ButtonFranquicia"
+  },
+  "ContenedorGoogleForm1": {
+    "component": "ContenedorGoogleForm1"
+  },
+  "ContenedorGoogleForm2": {
+    "component": "ContenedorGoogleForm2"
+  },
+  "ContenedorGoogleForm3": {
+    "component": "ContenedorGoogleForm3"
+  },
+  "ContenedorGoogleForm4": {
+    "component": "ContenedorGoogleForm4"
+  },
+  "ContenedorGoogleForm5": {
+    "component": "ContenedorGoogleForm5"
+  },
+  "EmbedFormSiteEditor": {
+    "component": "EmbedFormSiteEditor"
+  },
+  "documentation": {
+    "component": "Documentation"
+  }
+}
