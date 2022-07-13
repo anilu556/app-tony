@@ -7,7 +7,9 @@ import FacturacionContainer from './FacturacionContainer'
 import { AppKey, AppToken } from './keys'
 
 const Facturacion = () => {
-  const [optionsCFDI, setOptionsCFDI]: any = useState([])
+  const [optionsRFFisica, setOptionsRFFisica]: any = useState([])
+  const [optionsRFMoral, setOptionsRFMoral]: any = useState([])
+  const [optionsUsoCFDI, setOptionsUsoCFDI]: any = useState([]);
   const [optionsFormaPago, setOptionsFormaPago]: any = useState([])
   const [form, setForm] = useState({
     tipoPersona: 'fisica',
@@ -26,6 +28,7 @@ const Facturacion = () => {
     codigoPostal: '',
     colonia: '',
     ciudad: '',
+    regimenFiscal: '',
     usoCFDI: '',
     formaPago: '',
     BetweenStreets: '',
@@ -46,7 +49,7 @@ const Facturacion = () => {
   useEffect(() => {
     getFormaPago()
     obtenerEstados()
-    getUsoCFDI()
+    getRegimenFiscal()
     createRandomNum()
   }, [])
 
@@ -93,6 +96,9 @@ const Facturacion = () => {
         setCheckFisica(false),
         setForm({ ...form, tipoPersona: 'moral' })
     }
+    setForm({ ...form, regimenFiscal: '' })
+    setForm({ ...form, usoCFDI: '' })
+    setOptionsUsoCFDI([])
   }
 
   const getColonias = async (codigoPostal: any) => {
@@ -237,6 +243,7 @@ const Facturacion = () => {
       SecondLastName: form.segundoApellido,
       Email: form.correo,
       PhoneNumber: form.telefono,
+      RegimenFiscal: form.regimenFiscal,
       CfdiUse: form.usoCFDI,
       Rfc: form.rfc,
       PaymentMethod: form.formaPago,
@@ -281,7 +288,12 @@ const Facturacion = () => {
 
   const handleChangeForm = (e: React.FormEvent<HTMLInputElement>) => {
     const { name, value } = e.currentTarget
-    setForm({ ...form, [name]: value })
+    
+    if(name === 'nombre' || name === 'primerApellido' || name === 'segundoApellido' || name === 'razonSocial' || name === 'rfc')
+      setForm({ ...form, [name]: value.toUpperCase() })
+    else
+      setForm({ ...form, [name]: value })
+
     setIsReadOnly(false)
     if (name === 'rfc') {
       console.log(`RFC valido: ${rfcValido(value)}`)
@@ -315,38 +327,62 @@ const Facturacion = () => {
     let value1 = value['value']
     setForm({ ...form, ['formaPago']: value1 })
   }
-
-  const handleChangeUsoCFDI = (value: any) => {
-    let valueCFDI = value['value']
-    setForm({ ...form, ['usoCFDI']: valueCFDI })
+  
+  const handleChangeRegimenFiscal = (value: any) => {
+    let valueRegimenFiscal = value['value'];
+    setForm({ ...form, ['regimenFiscal']: valueRegimenFiscal });
+    getCFDI(valueRegimenFiscal);
   }
 
-  const getUsoCFDI = async () => {
-    let razonDFI: any = null
+  const handleChangeUsoCFDI = (value: any) => {
+    let valueCFDI = value['value'];
+    setForm({ ...form, ['usoCFDI']: valueCFDI });
+  }
+
+  const getCFDI = async (claveRegimenFiscal: any) => {
+    let usoCFDI: any = null
     try {
-      let url = '/api/dataentities/UsoCFDIV1/search?_fields=_all&_schema=mdv1'
-      let config = {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'X-VTEX-API-AppKey': AppKey,
-          'X-VTEX-API-AppToken': AppToken,
-        },
-      }
-      let res = await fetch(url, config)
-      razonDFI = await res.json()
+      let urlUsoCFDI = `https://api.smartcloud.mx/v1/corpo/usocfdi?regimen=${claveRegimenFiscal}&apikey=IbPpK8RJwZ1OvG04wsAKD006MJQ193mP`;
+      let resUsoCFDI = await fetch(urlUsoCFDI);
+      usoCFDI = await resUsoCFDI.json();
     } catch (error) {
       console.log('Ocurrio un error al obtener estados', error)
       return false
     }
 
-    let options = []
-    for (const rdfi of razonDFI) {
-      options.push({ value: rdfi.clave, label: rdfi.tipo })
+    let optionsCFDI = [];
+    for (const cfdi of usoCFDI) {
+      optionsCFDI.push({ value: cfdi.CLAVE, label: cfdi.DESCRIPCION })
     }
-    setOptionsCFDI(options)
+    setOptionsUsoCFDI(optionsCFDI);
+    return true
+  }
+
+  const getRegimenFiscal = async () => {
+    let razonRFFisica: any = null
+    let razonRFMoral: any = null
+    try {
+      let urlRFFisica = 'https://api.smartcloud.mx/v1/corpo/regimen?persona=F&apikey=IbPpK8RJwZ1OvG04wsAKD006MJQ193mP';
+      let resRFFisica = await fetch(urlRFFisica);
+      razonRFFisica = await resRFFisica.json();
+      let urlRFMoral = 'https://api.smartcloud.mx/v1/corpo/regimen?persona=M&apikey=IbPpK8RJwZ1OvG04wsAKD006MJQ193mP';
+      let resRFMoral = await fetch(urlRFMoral);
+      razonRFMoral = await resRFMoral.json();
+    } catch (error) {
+      console.log('Ocurrio un error al obtener estados', error)
+      return false
+    }
+
+    let optionsFisica = [];
+    let optionsMoral = [];
+    for (const rf of razonRFFisica) {
+      optionsFisica.push({ value: rf.CLAVE.toString(), label: rf.DESCRIPCION })
+    }
+    for (const rf of razonRFMoral) {
+      optionsMoral.push({ value: rf.CLAVE.toString(), label: rf.DESCRIPCION })
+    }
+    setOptionsRFFisica(optionsFisica);
+    setOptionsRFMoral(optionsMoral);
 
     return true
   }
@@ -393,6 +429,10 @@ const Facturacion = () => {
       (form.razonSocial === null && checkMoral == true)
     ) {
       alert('Ingrese la razon social')
+      return false
+    }
+    if (validateRazonSocial(form.razonSocial)) {
+      alert('Ingrese una razon social válida')
       return false
     }
 
@@ -482,6 +522,11 @@ const Facturacion = () => {
       return false
     }
 
+    if (form.regimenFiscal === '' || form.regimenFiscal === null) {
+      alert('Seleccione un Régimen Fiscal')
+      return false
+    }
+
     if (form.formaPago === '' || form.formaPago === null) {
       alert('Seleccione la forma de pago')
       return false
@@ -508,10 +553,29 @@ const Facturacion = () => {
       codigoPostal: '',
       colonia: '',
       ciudad: '',
+      regimenFiscal: '',
       usoCFDI: '',
       formaPago: '',
       BetweenStreets: '',
     })
+  }
+
+  const validateRazonSocial = (razonSocial: any) => {
+    const restricciones = ['S.A.', 'SA', 'S.', 'S', 'C.V.', 'CV', 'R.L.', 'RL'];
+    const razonSocialSplit = razonSocial.split(" ");
+    let encontrado = false;
+    
+    razonSocialSplit.map((optionRazonSocial:String) => {
+      restricciones.map((restriccion:String) => {
+        if(optionRazonSocial === restriccion) {
+          encontrado = true;
+        }
+      });
+    });
+
+    console.log(encontrado);
+
+    return encontrado;
   }
 
   const validateEmail = (email: any) => {
@@ -580,6 +644,7 @@ const Facturacion = () => {
       handleChangeForm={handleChangeForm}
       handleChangeCodigoPostal={handleChangeCodigoPostal}
       handleChangeFormaPago={handleChangeFormaPago}
+      handleChangeRegimenFiscal={handleChangeRegimenFiscal}
       handleChangeUsoCFDI={handleChangeUsoCFDI}
       closeNotification={closeNotification}
       seleccionarEstado={seleccionarEstado}
@@ -589,7 +654,9 @@ const Facturacion = () => {
       checkFisica={checkFisica}
       errorRFC={errorRFC}
       form={form}
-      optionsCFDI={optionsCFDI}
+      optionsRFFisica={optionsRFFisica}
+      optionsRFMoral={optionsRFMoral}
+      optionsUsoCFDI={optionsUsoCFDI}
       optionsFormaPago={optionsFormaPago}
       dropdownEstados={dropdownEstados}
       dropdownColonias={dropdownColonias}

@@ -15,6 +15,7 @@ function FacturacionContainer({
   handleChangeForm,
   handleChangeCodigoPostal,
   handleChangeFormaPago,
+  handleChangeRegimenFiscal,
   handleChangeUsoCFDI,
   closeNotification,
   seleccionarEstado,
@@ -25,7 +26,9 @@ function FacturacionContainer({
   checkMoral,
   errorRFC,
   form,
-  optionsCFDI,
+  optionsRFFisica,
+  optionsRFMoral,
+  optionsUsoCFDI,
   optionsFormaPago,
   dropdownEstados,
   dropdownColonias,
@@ -50,6 +53,7 @@ function FacturacionContainer({
   handleChangeForm: any
   handleChangeCodigoPostal: any
   handleChangeFormaPago: any
+  handleChangeRegimenFiscal: any
   handleChangeUsoCFDI: any
   closeNotification: any
   seleccionarEstado: any
@@ -60,7 +64,9 @@ function FacturacionContainer({
   checkMoral: any
   errorRFC: any
   form: any
-  optionsCFDI: any
+  optionsRFFisica: any
+  optionsRFMoral: any
+  optionsUsoCFDI: any
   optionsFormaPago: any
   dropdownEstados: any
   dropdownColonias: any
@@ -158,7 +164,7 @@ function FacturacionContainer({
               }`}
             >
               <Input
-                placeholder="Empresa SA de CV"
+                placeholder="Empresa"
                 size="Regular"
                 label="Razon social"
                 name="razonSocial"
@@ -242,12 +248,29 @@ function FacturacionContainer({
 
             <div className={styles.inThree}>
               <Dropdown
+                label="Régimen Fiscal"
+                placeholder="Régimen Fiscal"
+                size="Regular"
+                options={ checkFisica ? (
+                            optionsRFFisica.sort((x: any, y: any) =>
+                              x.value.localeCompare(y.value)
+                            )) : 
+                            (optionsRFMoral.sort((x: any, y: any) =>
+                              x.value.localeCompare(y.value)
+                          ))}
+                value={form.regimenFiscal}
+                onChange={(_: any, v: any) => handleChangeRegimenFiscal({ value: v })}
+              />
+            </div>
+
+            <div className={styles.inThree}>
+              <Dropdown
                 label="Uso de CFDI"
                 placeholder="Uso de CFDI"
                 size="Regular"
-                options={optionsCFDI.sort((x: any, y: any) =>
-                  x.value.localeCompare(y.value)
-                )}
+                options={ optionsUsoCFDI.sort((x: any, y: any) => 
+                            x.value.localeCompare(y.value)
+                        )}
                 value={form.usoCFDI}
                 onChange={(_: any, v: any) => handleChangeUsoCFDI({ value: v })}
               />
